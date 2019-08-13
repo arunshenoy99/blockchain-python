@@ -1,8 +1,9 @@
-name = 'Arun'
+names = ['John','JessicaN','Jen','num','Andrew','Maximus','Nadia']
 
-def greeting(age):
-    global name
-    name = 'Jess'
-    print('Hello '+name+' your age is '+str(age))
-greeting(age=29)
-print(name)
+for name in names:
+    if len(name)>5 and ('n' in name or 'N' in name):
+        print(name)
+while len(names)>0:
+    names.pop()
+print(names)
+
