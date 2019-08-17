@@ -47,7 +47,7 @@ def verify_transaction(transaction):
 
 
 
-#Add a new transavtion to the blockchain
+#Add a new transaction to the blockchain
 
 def add_transaction(recipient , sender = owner, amount = 1.0):
     """append a new value as well as the last blockchain value to the blockchain
@@ -80,11 +80,12 @@ def mine_block():
         'recipient':owner,
         'amount':MINING_REWARD
     }
-    open_transactions.append(reward_transaction)
+    copied_transactions = open_transactions[:]
+    copied_transactions.append(reward_transaction)
     block = {
         'previous_hash':hashed_block,
         'index':len(blockchain),
-        'transactions': open_transactions
+        'transactions': copied_transactions
     }
     blockchain.append(block)
     return True
@@ -116,8 +117,8 @@ def verify_chain():
             return False
     return True
 
-
-
+def verify_transactions():
+    return all([verify_transaction(tx) for tx in open_transactions])
 
 #Get subsequent transactions and add to blockchain
 
@@ -126,6 +127,7 @@ while True:
     print('1.Add a new transaction value')
     print('2.Mine a block')
     print('3.Print the blocks')
+    print('4.Check transactions validity')
     print('h:Manipulate the blockchain')
     print('q.Quit')
     user_choice=get_user_choice()
@@ -141,6 +143,11 @@ while True:
             open_transactions = []
     elif user_choice == '3':
         print_blockchain_elements()
+    elif user_choice == '4':
+        if verify_transactions():
+            print('Transactions are valid')
+        else:
+            print('Transactions are not valid')
     elif user_choice == 'q':
         break
     elif user_choice == 'h':
@@ -151,6 +158,6 @@ while True:
     if not verify_chain():
         print('Invalid Blockchain')
         break    
-    print(get_balance('Arun'))                  
+    print('Your balance:'+str(get_balance('Arun')))                  
 
 print('Done')
