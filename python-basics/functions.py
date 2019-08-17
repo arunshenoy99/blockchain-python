@@ -1,9 +1,6 @@
-names = ['John','JessicaN','Jen','num','Andrew','Maximus','Nadia']
+def unlimited_arguments(*args):
+    for argument in args:
+        print(argument)
 
-for name in names:
-    if len(name)>5 and ('n' in name or 'N' in name):
-        print(name)
-while len(names)>0:
-    names.pop()
-print(names)
-
+unlimited_arguments(1,2,3,4)
+unlimited_arguments(*[5,6,7,8])

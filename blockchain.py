@@ -1,3 +1,5 @@
+import functools
+
 #Initializing the blockchain list
 
 MINING_REWARD = 10
@@ -21,16 +23,10 @@ def hash_block(block):
 def get_balance(participant):
     tx_sender = [[tx['amount'] for tx in block['transactions'] if tx['sender']==participant] for block in blockchain]
     open_tx_sender = [tx['amount'] for tx in open_transactions if tx['sender'] == participant]
-    amount_sent = 0
-    amount_recieved = 0
     tx_sender.append(open_tx_sender)
-    for tx in tx_sender:
-        if(len(tx)>0):
-            amount_sent = amount_sent + tx[0]
+    amount_sent = functools.reduce(lambda tx_sum, tx_amt: tx_sum+tx_amt[0] if len(tx_amt)>0 else 0,tx_sender,0)
     tx_recieved = [[tx['amount'] for tx in block['transactions'] if tx['recipient']==participant] for block in blockchain]
-    for tx in tx_recieved:
-        if(len(tx)>0):
-            amount_recieved = amount_recieved + tx[0]
+    amount_recieved = functools.reduce(lambda tx_sum,tx_amt: tx_sum+tx_amt[0] if len(tx_amt)>0 else 0,tx_recieved,0)
     return amount_recieved-amount_sent
 #Get the last block data from a blockchain
 
@@ -158,6 +154,6 @@ while True:
     if not verify_chain():
         print('Invalid Blockchain')
         break    
-    print('Your balance:'+str(get_balance('Arun')))                  
+    print('Balance of {} is {:6.2f}'.format(owner,get_balance(owner)))                  
 
 print('Done')
