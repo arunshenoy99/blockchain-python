@@ -1,6 +1,8 @@
-def unlimited_arguments(*args):
-    for argument in args:
-        print(argument)
+def first_function(*args):
+    for (index,value) in enumerate(args):
+        if(index==0):
+            continue
+        print('{:^20}'.format(args[0](value)))
 
-unlimited_arguments(1,2,3,4)
-unlimited_arguments(*[5,6,7,8])
+
+first_function(lambda val:str(val*2),2,3,4,5,6)

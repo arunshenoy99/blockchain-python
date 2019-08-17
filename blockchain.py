@@ -1,5 +1,6 @@
 import functools
-
+import hashlib
+import json
 #Initializing the blockchain list
 
 MINING_REWARD = 10
@@ -17,16 +18,16 @@ participants = {owner}
 blockchain.append(genesis_block)
 
 def hash_block(block):
-    return '-'.join([str(block[key]) for key in block])
+    return hashlib.sha256(json.dumps(block).encode()).hexdigest()
 
 
 def get_balance(participant):
     tx_sender = [[tx['amount'] for tx in block['transactions'] if tx['sender']==participant] for block in blockchain]
     open_tx_sender = [tx['amount'] for tx in open_transactions if tx['sender'] == participant]
     tx_sender.append(open_tx_sender)
-    amount_sent = functools.reduce(lambda tx_sum, tx_amt: tx_sum+tx_amt[0] if len(tx_amt)>0 else 0,tx_sender,0)
+    amount_sent = functools.reduce(lambda tx_sum, tx_amt: tx_sum+sum(tx_amt) if len(tx_amt)>0 else tx_sum+0,tx_sender,0)
     tx_recieved = [[tx['amount'] for tx in block['transactions'] if tx['recipient']==participant] for block in blockchain]
-    amount_recieved = functools.reduce(lambda tx_sum,tx_amt: tx_sum+tx_amt[0] if len(tx_amt)>0 else 0,tx_recieved,0)
+    amount_recieved = functools.reduce(lambda tx_sum,tx_amt: tx_sum+sum(tx_amt) if len(tx_amt)>0 else tx_sum+0,tx_recieved,0)
     return amount_recieved-amount_sent
 #Get the last block data from a blockchain
 
