@@ -1,8 +1,10 @@
-def first_function(*args):
-    for (index,value) in enumerate(args):
-        if(index==0):
-            continue
-        print('{:^20}'.format(args[0](value)))
+import random
+import datetime
+rand1 = random.random()
+rand2 = random.randint(1,10)
+print(rand1,rand2)
 
 
-first_function(lambda val:str(val*2),2,3,4,5,6)
+ru = str(rand1) + str(datetime.datetime.now())
+
+print(ru)
