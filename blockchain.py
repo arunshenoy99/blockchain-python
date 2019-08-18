@@ -3,27 +3,32 @@ import hashlib
 from collections import OrderedDict
 
 from hash_util import hash_block,hash_string_256
-#Initializing the blockchain list
 
+#REWARD FOR THE MINER FOR MINIG A NEW BLOCK FROM THE OPEN TRANSACTIONS,PREVIOUS HASH AND INDEX
 MINING_REWARD = 10
 
+#CREATE THE FIRST BLOCK IN THE BLOCKCHAIN
 genesis_block = {
     'previous_hash':'',
     'index':0,
     'transactions':[],
     'proof':100
 }
+
+#INITIALIZING THE BLOCKCHAIN,OPEN TRANSACTIONS LISTS,PARTICIPANT IS A SET
 blockchain = []
 open_transactions = []
 owner = 'Arun'
 participants = {owner}
 
+#ADD GENESIS BLOCK TO THE BLOCKCHAIN
 blockchain.append(genesis_block)
 
-
-
-
+#GET THE BALANCE FOR A PARTICIPANT
 def get_balance(participant):
+    """ Returns the balance of the participant by considering sent and recieved amounts in previous transactions and open transactions
+        :participant:The participant name whose balance is to be found
+     """
     tx_sender = [[tx['amount'] for tx in block['transactions'] if tx['sender']==participant] for block in blockchain]
     open_tx_sender = [tx['amount'] for tx in open_transactions if tx['sender'] == participant]
     tx_sender.append(open_tx_sender)
@@ -32,36 +37,47 @@ def get_balance(participant):
     amount_recieved = functools.reduce(lambda tx_sum,tx_amt: tx_sum+sum(tx_amt) if len(tx_amt)>0 else tx_sum+0,tx_recieved,0)
     return amount_recieved-amount_sent
 
-
+#DEFINE THE VALID PROOF OF WORK CRITERIA
 def valid_proof(transactions , last_hash , proof):
+    """Checks if the given pow number is valid
+    :transactions:The transactions of the block(open transactions if new block)
+    :last_hash:The previous hash value of the block
+    :proof:The pow number
+    """
     guess = str(str(transactions)+str(last_hash)+str(proof)).encode()
     guess_hash = hash_string_256(guess)
     return guess_hash[0:2] == '00'
 
+#GENERATE THE VALID PROOF OF WORK
 def proof_of_work():
+    """Generates the valid proof of work number"""
     last_block = blockchain[-1]
     last_hash = hash_block(last_block)
     proof = 0
     while not valid_proof(open_transactions , last_hash , proof):
         proof = proof+1
     return proof
-#Get the last block data from a blockchain
 
+#GET THE LAST BLOCK IN THE BLOCKCHAIN
 def get_last_blockchain_value():
+    """Returns the last block in the blockchain"""
     if len(blockchain) < 1:
         return None
     return blockchain[-1]
 
-
+#VERFIY THE TRANSACTION
 def verify_transaction(transaction):
+    """Returns the boolean True if balance is greater than transaction amount else it returns false"""
     sender_balance = get_balance(transaction['sender'])
     return sender_balance >= transaction['amount']
 
-
-
-#Add a new transaction to the blockchain
-
+#ADD A NEW TRANSACTION TO OPEN TRANSACTIONS
 def add_transaction(recipient , sender = owner, amount = 1.0):
+    """Adds the new transactions to the list of open transactions and returns boolean true or false based on completion status
+    :recipient:The person who is the reciever
+    :sender:The sender of the amount
+    "amount:The amount to be sent
+    """
     transaction = OrderedDict([('sender',sender),('recipient',recipient),('amount',amount)])
     if(verify_transaction(transaction)):
         open_transactions.append(transaction)
@@ -70,10 +86,9 @@ def add_transaction(recipient , sender = owner, amount = 1.0):
         return True
     return False
 
-
-
-
+#MINE A NEW BLOCK
 def mine_block():
+    """Adds a new block to the blockchain after validation and proof of work"""
     last_block = blockchain[-1]
     hashed_block = hash_block(last_block)
     proof=proof_of_work()
@@ -89,26 +104,29 @@ def mine_block():
     blockchain.append(block)
     return True
  
-#Get transaction amount from the user
+#GET A TRANSACTION
 def get_transaction_value():
-    """ returns the user input transaction amount in float"""
+    """Returns the user input transaction amount in float"""
     tx_recipient = input('Recipient')
     tx_amount = float(input('Enter the amount:'))
     transaction = (tx_recipient,tx_amount)
     return transaction
 
-#Get the user choice
+#GET THE USER CHOICE OF THE MENU
 def get_user_choice():
+    """retunrs the user choice"""
     return input('Your Choice:')
 
-#Output the blockchain blocks
+#OUTPUT THE BLOCKCHAIN ELEMENTS
 def print_blockchain_elements():
+    """prints the blockchain elements"""
     print('Outputting blockchain')
     for block in blockchain:
         print(block)
 
-#Verify the blockchain
+#VERIFY HASHES AND PROOF OF WORK'S
 def verify_chain():
+    """Checks block hashes and proof of works and returns true or false based on success or failure"""
     for (index,block) in enumerate(blockchain):
         if(index == 0):
             continue
@@ -119,11 +137,12 @@ def verify_chain():
             return False
     return True
 
+#VERIFY EACH TRANSACTION
 def verify_transactions():
+    """Verifies all the transactions and returns true if all are valid else false"""
     return all([verify_transaction(tx) for tx in open_transactions])
 
-#Get subsequent transactions and add to blockchain
-
+#BLOCKCHAIN COMMAND LINE INTERFACE
 while True:
     print('Please choose')
     print('1.Add a new transaction value')
