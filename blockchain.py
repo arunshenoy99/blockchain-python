@@ -7,36 +7,27 @@ from hash_util import hash_block,hash_string_256
 
 #REWARD FOR THE MINER FOR MINIG A NEW BLOCK FROM THE OPEN TRANSACTIONS,PREVIOUS HASH AND INDEX
 MINING_REWARD = 10
-
-#CREATE THE FIRST BLOCK IN THE BLOCKCHAIN
-genesis_block = {
-    'previous_hash':'',
-    'index':0,
-    'transactions':[],
-    'proof':100
-}
-
 #INITIALIZING THE BLOCKCHAIN,OPEN TRANSACTIONS LISTS,PARTICIPANT IS A SET
 blockchain = []
 open_transactions = []
 owner = 'Arun'
 participants = {owner}
 
-#ADD GENESIS BLOCK TO THE BLOCKCHAIN
-blockchain.append(genesis_block)
-
 #SAVE THE BLOCKCHAIN DATA
 def save_data():
     """Saves the blockchain and open transactions as strings"""
-    with open('blockchain.txt',mode = 'w') as f:
-        f.write(json.dumps(blockchain))
-        f.write('\n')
-        f.write(json.dumps(open_transactions))
-        #save_data = {
-            #'chain':blockchain,
-            #'ot':open_transactions
-        #}
-        #f.write(pickle.dumps(save_data))
+    try:
+        with open('blockchain.txt',mode = 'w') as f:
+            f.write(json.dumps(blockchain))
+            f.write('\n')
+            f.write(json.dumps(open_transactions))
+            #save_data = {
+                #'chain':blockchain,
+                #'ot':open_transactions
+            #}
+            #f.write(pickle.dumps(save_data))
+    except (IOError,IndexError):
+        print('Saving failed')
 
 #LOAD THE BLOCKCHAIN DATA
 def load_data():
@@ -56,12 +47,16 @@ def load_data():
             }for block in blockchain]
             open_transactions = json.loads(file_content[1])
             open_transactions = [OrderedDict([('sender',tx['sender']),('recipient',tx['recipient']),('amount',tx['amount'])]) for tx in open_transactions]
-    except IOError:
-        print('File not found')
-    except:
-        print('Wildcard for all errors')
-    finally:
-        print('Cleanup!')
+    except (IOError,IndexError):
+        #CREATE THE FIRST BLOCK IN THE BLOCKCHAIN
+        genesis_block = {
+            'previous_hash':'',
+            'index':0,
+            'transactions':[],
+            'proof':100
+        }
+        #ADD GENESIS BLOCK TO THE BLOCKCHAIN
+        blockchain.append(genesis_block)
 
 load_data()
 
