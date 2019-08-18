@@ -1,6 +1,7 @@
 import functools
 import hashlib
 from collections import OrderedDict
+import json
 
 from hash_util import hash_block,hash_string_256
 
@@ -23,6 +24,39 @@ participants = {owner}
 
 #ADD GENESIS BLOCK TO THE BLOCKCHAIN
 blockchain.append(genesis_block)
+
+#SAVE THE BLOCKCHAIN DATA
+def save_data():
+    """Saves the blockchain and open transactions as strings"""
+    with open('blockchain.txt',mode = 'w') as f:
+        f.write(json.dumps(blockchain))
+        f.write('\n')
+        f.write(json.dumps(open_transactions))
+        #save_data = {
+            #'chain':blockchain,
+            #'ot':open_transactions
+        #}
+        #f.write(pickle.dumps(save_data))
+
+#LOAD THE BLOCKCHAIN DATA
+def load_data():
+    global blockchain,open_transactions
+    with open('blockchain.txt', mode = 'r') as f:
+        file_content = f.readlines()
+        #file_content= pickle.loads(f.read())
+        #blockchain = file_content['chain']
+        #open_transactions = file_content['ot']
+        blockchain = json.loads(file_content[0][:-1])
+        blockchain = [{
+            'previous_hash':block['previous_hash'],
+            'index':block['index'],
+            'proof':block['proof'],
+            'transactions':[OrderedDict([('sender',tx['sender']),('recipient',tx['recipient']),('amount',tx['amount'])]) for tx in block['transactions']]
+        }for block in blockchain]
+        open_transactions = json.loads(file_content[1])
+        open_transactions = [OrderedDict([('sender',tx['sender']),('recipient',tx['recipient']),('amount',tx['amount'])]) for tx in open_transactions]
+
+load_data()
 
 #GET THE BALANCE FOR A PARTICIPANT
 def get_balance(participant):
@@ -157,11 +191,13 @@ while True:
         recipient , amount = tx_data
         if(add_transaction(recipient , amount = amount)):
             print('Added Transaction')
+            save_data()
         else:
             print('Transaction failed')
     elif user_choice == '2':
         if mine_block():
             open_transactions = []
+            save_data()
     elif user_choice == '3':
         print_blockchain_elements()
     elif user_choice == '4':
