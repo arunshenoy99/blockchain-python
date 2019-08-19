@@ -13,7 +13,6 @@ MINING_REWARD = 10
 blockchain = []
 open_transactions = []
 owner = 'Arun'
-participants = {owner}
 
 #SAVE THE BLOCKCHAIN DATA
 def save_data():
@@ -177,7 +176,6 @@ while True:
     print('2.Mine a block')
     print('3.Print the blocks')
     print('4.Check transactions validity')
-    print('h:Manipulate the blockchain')
     print('q.Quit')
     user_choice=get_user_choice()
     if user_choice == '1':
