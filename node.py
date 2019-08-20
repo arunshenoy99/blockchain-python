@@ -4,7 +4,8 @@ from uuid import uuid4
 verifier = Verification()
 class Node:
     def __init__(self):
-        self.id = uuid4()
+        #self.id = str(uuid4())
+        self.id = 'Arun'
         self.blockchain = Blockchain(self.id)
         self.listen_for_input()
     def listen_for_input(self):

@@ -21,7 +21,7 @@ class Verification:
     #VERFIY THE TRANSACTION
     def verify_transaction(self,transaction,get_balance):
         """Returns the boolean True if balance is greater than transaction amount else it returns false"""
-        sender_balance = get_balance(transaction.sender)
+        sender_balance = get_balance()
         return sender_balance >= transaction.amount
     
     #DEFINE THE VALID PROOF OF WORK CRITERIA
