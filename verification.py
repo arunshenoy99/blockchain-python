@@ -1,31 +1,35 @@
 from hash_util import hash_block,hash_string_256
 class Verification:
+    @classmethod
     #VERIFY HASHES AND PROOF OF WORK'S
-    def verify_chain(self,blockchain):
+    def verify_chain(cls,blockchain):
         """Checks block hashes and proof of works and returns true or false based on success or failure"""
         for (index,block) in enumerate(blockchain):
             if(index == 0):
                 continue
             if(block.previous_hash != hash_block(blockchain[index-1])):
                 return False
-            if (not self.valid_proof(block.transactions[:-1],block.previous_hash,block.proof)):
+            if (not cls.valid_proof(block.transactions[:-1],block.previous_hash,block.proof)):
                 print('Proof is invalid')
                 return False
         return True
     
     #VERIFY EACH TRANSACTION
-    def verify_transactions(self,open_transactions,get_balance):
+    @classmethod
+    def verify_transactions(cls,open_transactions,get_balance):
         """Verifies all the transactions and returns true if all are valid else false"""
-        return all([self.verify_transaction(tx,get_balance) for tx in open_transactions])
+        return all([cls.verify_transaction(tx,get_balance) for tx in open_transactions])
     
     #VERFIY THE TRANSACTION
-    def verify_transaction(self,transaction,get_balance):
+    @staticmethod
+    def verify_transaction(transaction,get_balance):
         """Returns the boolean True if balance is greater than transaction amount else it returns false"""
         sender_balance = get_balance()
         return sender_balance >= transaction.amount
     
     #DEFINE THE VALID PROOF OF WORK CRITERIA
-    def valid_proof(self,transactions , last_hash , proof):
+    @staticmethod
+    def valid_proof(transactions , last_hash , proof):
         """Checks if the given pow number is valid
         :transactions:The transactions of the block(open transactions if new block)
         :last_hash:The previous hash value of the block
