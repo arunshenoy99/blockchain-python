@@ -1,10 +1,11 @@
 from collections import OrderedDict
-from printable import Printable
+from utility.printable import Printable
 class Transaction(Printable):
-    def __init__(self, sender, recipient , amount):
+    def __init__(self, sender, recipient , amount , signature):
         self.sender = sender
         self.recipient = recipient
         self.amount = amount
+        self.signature = signature
 
     
     def __repr__(self):

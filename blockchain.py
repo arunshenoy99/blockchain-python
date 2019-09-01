@@ -3,10 +3,10 @@ import hashlib
 from collections import OrderedDict
 import json
 
-from hash_util import hash_block,hash_string_256
+from utility.hash_util import hash_block
+from utility.verification import Verification
 from block import Block
 from transaction import Transaction
-from verification import Verification
 
 #REWARD FOR THE MINER FOR MINIG A NEW BLOCK FROM THE OPEN TRANSACTIONS,PREVIOUS HASH AND INDEX
 MINING_REWARD = 10
@@ -24,7 +24,7 @@ class Blockchain:
 
     @chain.setter
     def chain(self,val):
-        self.chain = val
+        self.__chain = val
 
 #SAVE THE BLOCKCHAIN DATA
     def save_data(self):
@@ -55,12 +55,12 @@ class Blockchain:
                 blockchain = json.loads(file_content[0][:-1])
                 updated_blockchain = []
                 for block in blockchain:
-                    converted_tx = [Transaction(tx['sender'],tx['recipient'],tx['amount']) for tx in block['transactions']]
+                    converted_tx = [Transaction(tx['sender'],tx['recipient'],tx['amount'],tx['signature']) for tx in block['transactions']]
                     updated_block = Block(block['index'], block['previous_hash'], converted_tx,block['proof'],block['timestamp'])
                     updated_blockchain.append(updated_block)
                 self.__chain = updated_blockchain
                 self.__open_transactions = json.loads(file_content[1])
-                self.__open_transactions = [Transaction(tx['sender'],tx['recipient'],tx['amount']) for tx in self.__open_transactions]
+                self.__open_transactions = [Transaction(tx['sender'],tx['recipient'],tx['amount'],tx['signature']) for tx in self.__open_transactions]
         except (IOError,IndexError):
             pass
 
@@ -99,13 +99,15 @@ class Blockchain:
 
 
 #ADD A NEW TRANSACTION TO OPEN TRANSACTIONS
-    def add_transaction(self,recipient , sender, amount = 1.0):
+    def add_transaction(self,recipient,sender,signature,amount = 1.0):
         """Adds the new transactions to the list of open transactions and returns boolean true or false based on completion status
         :recipient:The person who is the reciever
         :sender:The sender of the amount
         "amount:The amount to be sent
         """
-        transaction = Transaction(sender,recipient,amount)
+        if(self.hosting_node == None):
+            return False
+        transaction = Transaction(sender,recipient,amount , signature)
         if(Verification.verify_transaction(transaction,self.get_balance)):
             self.__open_transactions.append(transaction)
             return True
@@ -114,10 +116,12 @@ class Blockchain:
 #MINE A NEW BLOCK
     def mine_block(self):
         """Adds a new block to the blockchain after validation and proof of work"""
+        if(self.hosting_node == None):
+            return False
         last_block = self.__chain[-1]
         hashed_block = hash_block(last_block)
         proof=self.proof_of_work()
-        reward_transaction = Transaction('Mining',self.hosting_node,MINING_REWARD)
+        reward_transaction = Transaction('Mining',self.hosting_node,MINING_REWARD,'')
         copied_transactions = self.__open_transactions[:]
         copied_transactions.append(reward_transaction)
         block = Block(len(self.__chain) , hashed_block , copied_transactions , proof)
