@@ -1,6 +1,7 @@
 """Provides verification helper methods"""
 
 from utility.hash_util import hash_block,hash_string_256
+from wallet import Wallet
 class Verification:
     @classmethod
     #VERIFY HASHES AND PROOF OF WORK'S
@@ -20,14 +21,17 @@ class Verification:
     @classmethod
     def verify_transactions(cls,open_transactions,get_balance):
         """Verifies all the transactions and returns true if all are valid else false"""
-        return all([cls.verify_transaction(tx,get_balance) for tx in open_transactions])
+        return all([cls.verify_transaction(tx,get_balance,False) for tx in open_transactions])
     
     #VERFIY THE TRANSACTION
     @staticmethod
-    def verify_transaction(transaction,get_balance):
+    def verify_transaction(transaction,get_balance, check_funds=True):
         """Returns the boolean True if balance is greater than transaction amount else it returns false"""
-        sender_balance = get_balance()
-        return sender_balance >= transaction.amount
+        if check_funds == True:
+            sender_balance = get_balance()
+            return sender_balance >= transaction.amount and Wallet.verify_transaction(transaction)
+        else:
+            Wallet.verify_transaction(transaction)
     
     #DEFINE THE VALID PROOF OF WORK CRITERIA
     @staticmethod
