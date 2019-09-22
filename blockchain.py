@@ -18,6 +18,7 @@ class Blockchain:
         self.__open_transactions = []
         self.load_data()
         self.hosting_node = hosting_node_id
+        self.__peer_nodes = set()
     
     @property
     def chain(self):
@@ -42,6 +43,8 @@ class Blockchain:
                     #'ot':open_transactions
                 #}
                 #f.write(pickle.dumps(save_data))
+                f.write('\n')
+                f.write(json.dumps(list(self.__peer_nodes)))
         except (IOError,IndexError):
             print('Saving failed')
 
@@ -60,8 +63,10 @@ class Blockchain:
                     updated_block = Block(block['index'], block['previous_hash'], converted_tx,block['proof'],block['timestamp'])
                     updated_blockchain.append(updated_block)
                 self.__chain = updated_blockchain
-                self.__open_transactions = json.loads(file_content[1])
+                self.__open_transactions = json.loads(file_content[1][-1])
                 self.__open_transactions = [Transaction(tx['sender'],tx['recipient'],tx['amount'],tx['signature']) for tx in self.__open_transactions]
+                peer_nodes = json.loads(file_content[2])
+                self.__peer_nodes = set(peer_nodes)
         except (IOError,IndexError):
             pass
 
@@ -138,3 +143,13 @@ class Blockchain:
     
     def get_open_transactions(self):
         return self.__open_transactions
+    
+    def add_peer_node(self,node):
+        """ Adds a new node to peer_nodes """
+        self.__peer_nodes.add(node)
+        self.save_data()
+    
+    def remove_peer_nodes(self,node):
+        """Remove a node from peer node set """
+        self.__peer_nodes.discard(node)
+        self.save_data()
