@@ -16,9 +16,10 @@ class Blockchain:
         genesis_block = Block(0,'',[],100,0)
         self.chain = [genesis_block]
         self.__open_transactions = []
-        self.load_data()
-        self.hosting_node = hosting_node_id
         self.__peer_nodes = set()
+        self.hosting_node = hosting_node_id
+        self.load_data()
+        
     
     @property
     def chain(self):
@@ -63,7 +64,7 @@ class Blockchain:
                     updated_block = Block(block['index'], block['previous_hash'], converted_tx,block['proof'],block['timestamp'])
                     updated_blockchain.append(updated_block)
                 self.__chain = updated_blockchain
-                self.__open_transactions = json.loads(file_content[1][-1])
+                self.__open_transactions = json.loads(file_content[1][:-1])
                 self.__open_transactions = [Transaction(tx['sender'],tx['recipient'],tx['amount'],tx['signature']) for tx in self.__open_transactions]
                 peer_nodes = json.loads(file_content[2])
                 self.__peer_nodes = set(peer_nodes)
@@ -149,7 +150,10 @@ class Blockchain:
         self.__peer_nodes.add(node)
         self.save_data()
     
-    def remove_peer_nodes(self,node):
+    def remove_peer_node(self,node):
         """Remove a node from peer node set """
         self.__peer_nodes.discard(node)
         self.save_data()
+
+    def get_peer_nodes(self):
+        return (list(self.__peer_nodes))[:]
