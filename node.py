@@ -14,6 +14,17 @@ def get_node_ui():
 def get_network_ui():
     return send_from_directory('ui','network.html')
 
+@app.route('/broadcast-transaction',methods = ['POST'])
+def broadcast_transaction():
+    values = request.get_json()
+    if not values:
+        response = {'message':'No data found'}
+        return jsonify(response) , 400
+        required = ['sender','recipient','amount']
+        if not all (key in values for key in required):
+            response = {'message':'Some data missing'}
+            return jsonify(response) , 400
+    
 
 
 @app.route('/transaction', methods = ['POST'])
