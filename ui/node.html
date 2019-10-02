@@ -315,7 +315,7 @@
                             vm.error = error.response.data.message;
                         });
                 },
-                onResolve:function(){
+                onResolve: function() {
                     var vm = this
                     axios.post('/resolve-conflicts')
                         .then(function(response) {
